@@ -1,0 +1,7 @@
+build/
+releases/
+.DS_Store
+*.p12
+*.keychain-db
+private.pem
+keychain-password
