@@ -2,11 +2,15 @@
 
 RME Babyface Pro와 함께 사용하는 macOS 독립형 크로매틱 기타 튜너입니다.
 
+Still is a standalone chromatic guitar tuner for macOS, designed for use with audio interfaces such as the RME Babyface Pro.
+
+[English guide](#english-guide) · [한국어 안내](#다시-다운로드하기)
+
 ![튜너 화면 — 예시 음정](assets/preview.png)
 
 ## 다시 다운로드하기
 
-[GitHub Releases](https://github.com/LemonMuscat/still-tuner/releases/latest)에서 `Still-Tuner-1.1.2-macOS-arm64.zip`을 내려받아 압축을 풀고, `Still Tuner.app`을 응용 프로그램 폴더에 넣습니다. GitHub 로그인과 이 비공개 저장소에 대한 접근 권한이 필요합니다.
+[GitHub Releases](https://github.com/LemonMuscat/still-tuner/releases/latest)에서 `Still-Tuner-1.1.2-macOS-arm64.zip`을 내려받아 압축을 풀고, `Still Tuner.app`을 응용 프로그램 폴더에 넣습니다. 공개 저장소이므로 GitHub 로그인 없이 다운로드할 수 있습니다.
 
 이 앱 파일은 Apple Silicon(M1 이상), macOS 13 이상용입니다. 로컬 인증서로 서명되어 있으며 Apple 공증은 되어 있지 않습니다. 새 Mac에서는 macOS가 실행을 막을 수 있습니다. 출처를 확인한 다음 시스템 설정 → 개인정보 보호 및 보안에서 실행을 허용하세요. 첫 실행에서 마이크 권한도 허용해야 합니다.
 
@@ -90,3 +94,44 @@ A4 기준음은 두 모드 모두 하단에서 바로 바꿀 수 있습니다. �
 이후 `./scripts/build.sh`는 항상 `scripts/sign.sh`를 통해 같은 인증서로 서명합니다. 인증서가 없으면 임시 서명으로 자동 후퇴하지 않고 중단합니다. 키는 `~/Library/Application Support/StillTuner/Signing`의 전용 키체인에 보관하며, 프로젝트 또는 앱에 개인 키를 포함하지 않습니다. 서명 동안만 해당 키체인을 검색 목록에 추가하고 원래 목록으로 복원합니다. 해당 Signing 폴더를 지우거나 인증서를 바꾸면 권한을 다시 요청할 수 있습니다.
 
 이 서명은 로컬 사용용이며 Apple Developer ID 서명/공증은 아닙니다.
+
+## English guide
+
+Still is a native macOS chromatic guitar tuner with a clear needle display and a compact mini mode. It reads a selected Core Audio input without producing audio output, so you can keep using your existing TotalMix or DAW monitoring path.
+
+### Features
+
+- Chromatic pitch detection, including alternate and drop tunings, with flat note names (Db, Eb, Gb, Ab, Bb).
+- Note, frequency, and cents display; the tuning indicator turns green within ±2 cents.
+- A4 reference adjustable from 430 to 450 Hz; default: 440 Hz.
+- Selectable audio input device and channel. RME/Babyface devices initially select Input 4.
+- Mini mode, an always-on-top toggle, and saved input, reference, and window settings.
+- Input analysis only: no audio playback, recording, or network transmission. The app does not change the system's default audio devices, interface sample rate, buffer size, or TotalMix settings.
+
+### Download and install
+
+The prebuilt app requires **Apple Silicon (M1 or later) and macOS 13 or later**.
+
+1. Open [Releases](https://github.com/LemonMuscat/still-tuner/releases/latest) and download `Still-Tuner-1.1.2-macOS-arm64.zip`.
+2. Unzip it and move `Still Tuner.app` to Applications.
+3. Launch the app and allow microphone access. macOS also requires this permission for external audio interfaces.
+4. Select your input and channel, then play one string at a time. Use TotalMix or your DAW to hear the guitar.
+
+The app uses a local signing certificate and is **not Apple notarized**. If macOS blocks it, verify the download source and allow it in **System Settings → Privacy & Security**. A new Mac may ask for microphone permission again. `SHA256SUMS.txt` is included with the release to verify the app ZIP.
+
+### Build from source
+
+You need macOS, Xcode Command Line Tools, and Python 3. The build targets the architecture of the Mac on which it runs.
+
+```sh
+git clone https://github.com/LemonMuscat/still-tuner.git
+cd still-tuner
+./scripts/setup-signing.sh  # Run once on each development Mac.
+./scripts/build.sh
+./scripts/test.sh
+open "build/Still Tuner.app"
+```
+
+Signing setup creates an app-specific local certificate and keychain; macOS may request authentication. Signing private keys and keychain passwords are not included in the repository or app. Keep the same local certificate for subsequent builds to preserve the app's identity.
+
+Pitch detection uses YIN on a separate analysis copy of the input. The synthetic test suite covers multiple sample rates, harmonics, silence, noise, and decaying signals. These tests validate the algorithm; they do not establish end-to-end latency or long-term stability with every interface and DAW. The interface currently uses Korean labels.
